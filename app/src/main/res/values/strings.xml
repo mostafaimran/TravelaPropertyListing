@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TravelaPropertyListing</string>
+    <string name="taka_sign">&#2547; %d</string>
+    <string name="bdt_price">BDT %d /Day</string>
+    <string name="location_permission_issue">Location permission required to access the app</string>
+    <string name="local_error_message">Something went wrong, please try again later</string>
+    <string name="server_error_message">We are facing some difficulties, sorry for inconvenience</string>
+    <string name="network_error_message">Internet connection issue, please check your network</string>
+    <string name="compare_similar_listing">Compare Similar Listings</string>
+    <string name="location_permission_title">Confirm Location Permission</string>
+    <string name="location_permission_message">Permission required to access your location</string>
+    <string name="ok">Okay</string>
+    <string name="cancel">Cancel</string>
+</resources>
