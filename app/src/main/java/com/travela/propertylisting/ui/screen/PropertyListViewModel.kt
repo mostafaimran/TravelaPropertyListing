@@ -15,8 +15,7 @@ import com.travela.propertylisting.coreandroid.util.ControlledRunner
 import com.travela.propertylisting.coreandroid.util.SingleEvent
 import com.travela.propertylisting.datamodel.models.Location
 import com.travela.propertylisting.datamodel.models.Property
-import com.travela.propertylisting.domain.GetPropertyList
-import com.travela.propertylisting.domain.ParamGetPropertyList
+import com.travela.propertylisting.domain.FetchPropertyList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -26,7 +25,7 @@ import kotlin.math.sqrt
 
 @HiltViewModel
 class PropertyListViewModel @Inject constructor(
-    private val getPropertyList: GetPropertyList
+    private val fetchPropertyList: FetchPropertyList
 ) : BaseViewModel() {
 
     var uiState by mutableStateOf(PropertyListScreenState())
@@ -49,7 +48,7 @@ class PropertyListViewModel @Inject constructor(
         )
     }
 
-    fun getVisibleRadius(cameraPositionState: CameraPositionState): Double? {
+    fun getVisibleRadius(cameraPositionState: CameraPositionState): ParamGetPropertyList? {
         cameraPositionState.projection?.visibleRegion?.let { visibleRegion ->
             val distanceWidth = FloatArray(1)
             val distanceHeight = FloatArray(1)
@@ -72,9 +71,12 @@ class PropertyListViewModel @Inject constructor(
                 (nearRight.longitude + nearLeft.longitude) / 2,
                 distanceHeight
             )
-            return sqrt(
+            val radius = (sqrt(
                 distanceWidth[0].toDouble().pow(2.0) + distanceHeight[0].toDouble().pow(2.0)
-            ) / 2.0
+            ) / 2.0) / 1000
+            val center = visibleRegion.latLngBounds.center
+
+            return ParamGetPropertyList(radius, center.latitude, center.longitude)
         }
         return null
     }
@@ -83,19 +85,17 @@ class PropertyListViewModel @Inject constructor(
         logDataList.add(LogData(log = log))
     }
 
-    fun getPropertyList(radius: Double, latitude: Double, longitude: Double) {
+    fun getPropertyList(paramGetPropertyList: ParamGetPropertyList) {
         uiScope.launch {
             uiState = uiState.copy(isLoading = true)
 
-            addLog("requesting property list - radius: $radius, lat: $latitude, lng: $longitude")
+            addLog("Requesting property list - radius: ${paramGetPropertyList.radius}, lat: ${paramGetPropertyList.latitude}, lng: ${paramGetPropertyList.longitude}")
 
             when (val results = controlledRunnerFetchRecords.cancelPreviousThenRun {
-                getPropertyList(
-                    ParamGetPropertyList(radius, latitude, longitude)
-                )
+                fetchPropertyList(paramGetPropertyList)
             }) {
                 is Success -> {
-                    addLog("property list success response: ${Gson().toJson(results.data)}")
+                    addLog("Response - Property list success: ${Gson().toJson(results.data)}")
 
                     uiState = uiState.copy(
                         propertyList = results.data,
@@ -104,7 +104,7 @@ class PropertyListViewModel @Inject constructor(
                 }
 
                 is Error -> {
-                    addLog("property list error response: ${results.exception.message ?: ""}")
+                    addLog("Response - Property list error: ${results.exception.message ?: ""}")
 
                     uiState = uiState.copy(
                         isLoading = false,
@@ -129,3 +129,9 @@ data class PropertyListScreenState(
 )
 
 data class LogData(val date: Date = Date(), val log: String)
+
+data class ParamGetPropertyList(
+    val radius: Double,
+    val latitude: Double,
+    val longitude: Double
+)

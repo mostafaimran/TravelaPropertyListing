@@ -104,14 +104,9 @@ fun PropertyMapScreen(
                 properties = properties,
                 currentLocation = currentLocation,
                 onMarkerClick = { property -> selectedProperty = property },
-                onFetchProperty = {
-                    viewModel.getVisibleRadius(it)?.let { radius ->
-                        if (currentLocation != null)
-                            viewModel.getPropertyList(
-                                radius,
-                                currentLocation.latitude,
-                                currentLocation.longitude
-                            )
+                onFetchProperty = { cameraPositionState ->
+                    viewModel.getVisibleRadius(cameraPositionState)?.let { paramGetPropertyList ->
+                        viewModel.getPropertyList(paramGetPropertyList)
                     }
                 }
             )
@@ -159,7 +154,7 @@ fun PropertyMap(
     var initialZoomReady by remember { mutableStateOf(false) }
 
     LaunchedEffect(initialZoomReady) {
-        if (currentLocation != null && initialZoomReady) {
+        if (initialZoomReady) {
             onFetchProperty(cameraPositionState)
         }
     }
@@ -175,7 +170,7 @@ fun PropertyMap(
 
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
-            if (currentLocation != null && initialZoomReady)
+            if (initialZoomReady)
                 onFetchProperty(cameraPositionState)
         }
     }
