@@ -9,3 +9,4 @@ Please use your own `Google Map API KEY`, replacing `YOUR_API_KEY` in the manife
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_API_KEY" />`
 
+However, putting keys in the manifest file is a bad practice. It can be moved to a much more secure place. I Will work on this later.
