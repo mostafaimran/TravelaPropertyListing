@@ -43,15 +43,15 @@ fun Exception.isClientRequestError(): Boolean {
 fun Exception.getErrorMessage(context: Context): String {
     return when (this) {
         is NetworkException -> {
-            return context.getString(R.string.network_error_message)
+            context.getString(R.string.network_error_message)
         }
 
         is ServerException -> {
-            return context.getString(R.string.server_error_message)
+            context.getString(R.string.server_error_message)
         }
 
         else -> {
-            return context.getString(R.string.local_error_message)
+            context.getString(R.string.local_error_message)
         }
     }
 }
